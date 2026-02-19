@@ -1,4 +1,4 @@
-// EverythingLogger - Frontend Application
+// FetchLog - Frontend Application
 
 const App = {
     ws: null,
