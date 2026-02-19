@@ -1,4 +1,4 @@
-# EverythingLogger
+# FetchLog
 
 A universal syslog server and real-time log viewer. It opens a UDP port that accepts messages from **anything** — standard syslog (RFC 3164/5424) or plain-text strings — stores everything in SQLite, and serves a live web dashboard for viewing, filtering, marking, and exporting logs.
 
@@ -53,8 +53,8 @@ Built to handle **300+ devices** simultaneously with no performance issues.
 
 ```bash
 # Clone and install
-git clone https://github.com/ShowSysDan/EverythingLogger.git
-cd EverythingLogger
+git clone https://github.com/ShowSysDan/FetchLog.git
+cd FetchLog
 pip install -r requirements.txt
 
 # Run it
@@ -126,7 +126,7 @@ On startup you'll see:
 
 ```
 ╔══════════════════════════════════════════════════════╗
-║              EverythingLogger v1.0                   ║
+║                   FetchLog v1.0                      ║
 ╠══════════════════════════════════════════════════════╣
 ║  UDP Syslog:  0.0.0.0:5514                           ║
 ║  Web UI:      http://localhost:8080                   ║
@@ -264,7 +264,7 @@ Files are named `logs_export_YYYYMMDD_HHMMSS.csv`. Maximum 10,000 entries per ex
 
 ### Host Management
 
-EverythingLogger automatically tracks every unique IP address that sends messages. The **Source** filter dropdown is populated with all known hosts.
+FetchLog automatically tracks every unique IP address that sends messages. The **Source** filter dropdown is populated with all known hosts.
 
 To rename a host (so "192.168.1.50" shows up as "Main Router"), use the API:
 
@@ -322,7 +322,7 @@ curl -X POST http://localhost:8080/api/hosts/192.168.1.50/name \
 **File structure:**
 
 ```
-EverythingLogger/
+FetchLog/
 ├── app.py              # Main entry point, CLI args, startup
 ├── syslog_server.py    # Async UDP listener
 ├── syslog_parser.py    # Message parser (RFC 3164/5424/raw)
@@ -515,7 +515,7 @@ Server statistics.
 
 ## Database
 
-EverythingLogger uses **SQLite** with **WAL (Write-Ahead Logging)** mode, which provides:
+FetchLog uses **SQLite** with **WAL (Write-Ahead Logging)** mode, which provides:
 
 - **Concurrent reads during writes** — The web UI can query while messages are being inserted
 - **High write throughput** — Easily handles thousands of inserts per second
@@ -557,14 +557,14 @@ When you create a marker, you can set the timestamp to any time — past, presen
 Use systemd, supervisor, or screen/tmux:
 
 ```bash
-# With systemd (create /etc/systemd/system/everythinglogger.service)
+# With systemd (create /etc/systemd/system/fetchlog.service)
 [Unit]
-Description=EverythingLogger Syslog Server
+Description=FetchLog Syslog Server
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /path/to/EverythingLogger/app.py --udp-port 514
-WorkingDirectory=/path/to/EverythingLogger
+ExecStart=/usr/bin/python3 /path/to/FetchLog/app.py --udp-port 514
+WorkingDirectory=/path/to/FetchLog
 Restart=always
 User=root
 

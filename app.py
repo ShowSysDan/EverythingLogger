@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-EverythingLogger - Universal Syslog Server & Log Viewer
+FetchLog - Universal Syslog Server & Log Viewer
 
 A UDP syslog server that accepts messages from any source (syslog or raw strings),
 stores them in SQLite, and provides a real-time web UI for viewing, filtering,
@@ -32,12 +32,12 @@ logging.basicConfig(
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
-logger = logging.getLogger("everythinglogger")
+logger = logging.getLogger("fetchlog")
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="EverythingLogger - Universal Syslog Server & Log Viewer"
+        description="FetchLog - Universal Syslog Server & Log Viewer"
     )
     parser.add_argument(
         "--udp-port", type=int, default=5514,
@@ -119,7 +119,7 @@ async def run_app(args):
 
     print(f"""
 ╔══════════════════════════════════════════════════════╗
-║              EverythingLogger v1.0                   ║
+║                   FetchLog v1.0                      ║
 ╠══════════════════════════════════════════════════════╣
 ║  UDP Syslog:  {args.host}:{args.udp_port:<30}║
 ║  Web UI:      http://localhost:{args.web_port:<21}║

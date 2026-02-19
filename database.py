@@ -1,5 +1,5 @@
 """
-SQLite database layer for EverythingLogger.
+SQLite database layer for FetchLog.
 
 Uses WAL mode for high-throughput concurrent writes from many devices.
 """
