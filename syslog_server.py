@@ -11,7 +11,7 @@ from typing import Callable, Optional
 
 from syslog_parser import parse_message
 
-logger = logging.getLogger("everythinglogger.udp")
+logger = logging.getLogger("fetchlog.udp")
 
 
 class SyslogProtocol(asyncio.DatagramProtocol):

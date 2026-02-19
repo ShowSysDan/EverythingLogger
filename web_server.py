@@ -1,5 +1,5 @@
 """
-FastAPI web server for EverythingLogger.
+FastAPI web server for FetchLog.
 
 Provides:
 - Web UI for viewing live log stream
@@ -23,7 +23,7 @@ from fastapi.templating import Jinja2Templates
 from database import LogDatabase
 from syslog_parser import SEVERITIES, FACILITIES, facility_name, severity_name
 
-app = FastAPI(title="EverythingLogger", version="1.0.0")
+app = FastAPI(title="FetchLog", version="1.0.0")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
@@ -51,7 +51,7 @@ async def broadcast_log(entry: dict):
         try:
             await ws.send_json(enriched)
         except Exception as e:
-            logging.getLogger("everythinglogger.ws").debug(
+            logging.getLogger("fetchlog.ws").debug(
                 "WebSocket send failed: %s", e)
             dead.add(ws)
     ws_clients -= dead
