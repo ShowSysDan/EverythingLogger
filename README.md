@@ -91,6 +91,99 @@ No external database server needed — SQLite is built into Python.
 
 ---
 
+## Running as a System Service
+
+Use the included `install.sh` script to install FetchLog as a persistent systemd service
+on any systemd-based Linux distribution (Debian, Ubuntu, RHEL, etc.).
+
+**No virtual environment needed** — the installer sets up Python packages system-wide so
+`python3 app.py` works directly.
+
+### One-Command Full Install
+
+```bash
+sudo ./install.sh
+```
+
+This runs setup, creates the service, and starts it in one step.
+
+### Step-by-Step
+
+```bash
+# 1. Install Python dependencies system-wide
+sudo ./install.sh setup
+
+# 2. Create the systemd service file and data directory
+sudo ./install.sh install
+
+# 3. Start the service
+sudo ./install.sh start
+```
+
+### Service Management
+
+```bash
+sudo ./install.sh start      # Start the service
+sudo ./install.sh stop       # Stop the service
+sudo ./install.sh status     # Show status and recent log output
+sudo ./install.sh uninstall  # Remove the service (database is preserved)
+
+# Or use systemctl directly after installation:
+sudo systemctl start fetchlog
+sudo systemctl stop fetchlog
+sudo systemctl status fetchlog
+journalctl -u fetchlog -f    # Follow live service logs
+```
+
+### Configuration
+
+Set these environment variables **before** running `sudo ./install.sh install` to override
+the defaults baked into the service file:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FETCHLOG_UDP_PORT` | `5514` | UDP port for receiving syslog messages |
+| `FETCHLOG_WEB_PORT` | `8080` | HTTP port for the web dashboard |
+| `FETCHLOG_HOST` | `0.0.0.0` | Bind address |
+| `FETCHLOG_USER` | `fetchlog` | System user account the service runs as |
+
+Example — use port 9090 for the web UI:
+
+```bash
+sudo FETCHLOG_WEB_PORT=9090 ./install.sh install
+```
+
+To change ports after the service is already installed, edit
+`/etc/systemd/system/fetchlog.service` and reload:
+
+```bash
+sudo systemctl daemon-reload && sudo systemctl restart fetchlog
+```
+
+### What the Installer Creates
+
+| Path | Description |
+|------|-------------|
+| `/etc/systemd/system/fetchlog.service` | Systemd unit file |
+| `/var/lib/fetchlog/logs.db` | Persistent SQLite database |
+| `fetchlog` system user | Unprivileged account the service runs under |
+
+### PEP 668 / Externally Managed Python
+
+On newer Debian/Ubuntu systems (22.04+), system pip may refuse to install packages globally.
+The installer automatically detects this and retries with `--break-system-packages`.
+
+If you prefer a virtual environment, create one manually and point the service at it:
+
+```bash
+python3 -m venv /opt/fetchlog-venv
+/opt/fetchlog-venv/bin/pip install -r requirements.txt
+# Then edit ExecStart in /etc/systemd/system/fetchlog.service to use:
+# ExecStart=/opt/fetchlog-venv/bin/python3 /path/to/FetchLog/app.py ...
+```
+
+---
+
 ## Usage
 
 ### Command-Line Options
