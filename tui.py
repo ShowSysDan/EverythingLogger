@@ -92,7 +92,7 @@ def fetch_history(host: str, port: int, tail: int) -> list:
     """Fetch the last `tail` log entries from the FetchLog REST API."""
     url = (
         f"http://{host}:{port}/api/logs"
-        f"?limit={tail}&sort_by=received_at&sort_order=ASC"
+        f"?limit={tail}&sort_by=received_at&sort_order=DESC"
     )
     try:
         with urllib.request.urlopen(url, timeout=5) as resp:
@@ -285,7 +285,7 @@ def draw_status(stdscr, max_y: int, max_x: int,
 def draw_logs(stdscr, entries: list, log_rows: int, max_x: int, has_colors: bool):
     """Draw the most recent log entries in the available rows."""
     mw = _msg_width(max_x)
-    visible = entries[-log_rows:]
+    visible = entries[:log_rows]
     for i, entry in enumerate(visible):
         row = i + 1  # row 0 is the header
         attr = get_attr(entry, has_colors)
@@ -316,8 +316,8 @@ def main_loop(stdscr, args: argparse.Namespace, history: list):
     if has_colors:
         init_colors()
 
-    entries: list = list(history)
-    frozen_at: int = len(entries)   # display anchor when paused
+    entries: list = list(history)   # newest at index 0
+    paused_snapshot: list = []      # frozen copy when paused
     paused: bool = False
     connected: bool = False
 
@@ -343,17 +343,14 @@ def main_loop(stdscr, args: argparse.Namespace, history: list):
                 if "_status" in item:
                     connected = (item["_status"] == "connected")
                 else:
-                    entries.append(item)
+                    entries.insert(0, item)
                     if len(entries) > MAX_BUFFER:
-                        trim = len(entries) - MAX_BUFFER
-                        entries = entries[trim:]
-                        if paused:
-                            frozen_at = max(0, frozen_at - trim)
+                        entries = entries[:MAX_BUFFER]
 
             # ── Determine what to show ──────────────────────────────────
             max_y, max_x = stdscr.getmaxyx()
             log_rows = max(1, max_y - 2)   # rows available between header and status
-            display = entries[:frozen_at] if paused else entries
+            display = paused_snapshot if paused else entries
 
             # ── Redraw ──────────────────────────────────────────────────
             stdscr.erase()
@@ -369,10 +366,11 @@ def main_loop(stdscr, args: argparse.Namespace, history: list):
                 break
             elif key == ord(' '):
                 if paused:
-                    paused = False        # resume: jump to newest
+                    paused = False
+                    paused_snapshot = []
                 else:
                     paused = True
-                    frozen_at = len(entries)
+                    paused_snapshot = list(entries)
             elif key == curses.KEY_RESIZE:
                 stdscr.clear()
 
